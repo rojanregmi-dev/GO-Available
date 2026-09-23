@@ -5,6 +5,7 @@ from django.db import IntegrityError
 from django.test import TestCase
 from rest_framework.test import APIClient
 from api.serializers import AccountSerializer
+from api.services import get_or_create_account
 
 from api.models import Account
 
@@ -89,3 +90,35 @@ class AccountSerializerTests(TestCase):
         self.assertEqual(data["user_number"], 100005)
         self.assertEqual(data["username"], "serial_user")
         self.assertEqual(data["display_name"], "Serial User")
+
+
+class AccountServiceTests(TestCase):
+    def test_get_or_create_account_creates_new_account(self):
+        supabase_user_id = uuid.uuid4()
+
+        account, created = get_or_create_account(
+            supabase_user_id=supabase_user_id,
+            username="service_user",
+            display_name="Service User",
+        )
+
+        self.assertTrue(created)
+        self.assertEqual(account.supabase_user_id, supabase_user_id)
+        self.assertEqual(account.user_number, 100001)
+        self.assertEqual(account.username, "service_user")
+        self.assertEqual(account.display_name, "Service User")
+
+    def test_get_or_create_account_returns_existing_account(self):
+        supabase_user_id = uuid.uuid4()
+
+        first_account, first_created = get_or_create_account(
+            supabase_user_id=supabase_user_id, username="service_user",
+        )
+        second_account, second_created = get_or_create_account(
+            supabase_user_id=supabase_user_id, username="different_username",
+        )
+
+        self.assertTrue(first_created)
+        self.assertFalse(second_created)
+        self.assertEqual(second_account.id, first_account.id)
+        self.assertEqual(second_account.username, "service_user")
