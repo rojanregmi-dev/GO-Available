@@ -18,11 +18,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from api.views import health, me, ready
+from api.views import create_account, health, me, ready
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/health", health, name="health"),
     path("api/v1/ready", ready, name="ready"),
     path("api/v1/account/me", me, name="account-me"),
+    path("api/v1/account", create_account, name="account-create"),
 ]
