@@ -4,3 +4,5 @@ __pycache__/
 .env
 .DS_Store
 *.sqlite3
+# Local planning notes
+/docs/GO_A_BLUEPRINT.md
