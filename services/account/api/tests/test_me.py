@@ -18,8 +18,7 @@ class AccountMeEndpointTests(TestCase):
 
         client = APIClient()
         response = client.get(
-            "/api/v1/account/me",
-            HTTP_X_SUPABASE_USER_ID=str(supabase_user_id),
+            "/api/v1/account/me", HTTP_X_SUPABASE_USER_ID=str(supabase_user_id),
         )
 
         self.assertEqual(response.status_code, 200)
@@ -39,8 +38,7 @@ class AccountMeEndpointTests(TestCase):
         client = APIClient()
 
         response = client.get(
-            "/api/v1/account/me",
-            HTTP_X_SUPABASE_USER_ID=str(uuid.uuid4()),
+            "/api/v1/account/me", HTTP_X_SUPABASE_USER_ID=str(uuid.uuid4()),
         )
 
         self.assertEqual(response.status_code, 404)
