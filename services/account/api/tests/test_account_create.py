@@ -71,3 +71,26 @@ class AccountCreateEndpointTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
+
+    def test_create_account_rejects_username_owned_by_another_account(self):
+        existing_supabase_user_id = uuid.uuid4()
+        new_supabase_user_id = uuid.uuid4()
+        Account.objects.create(
+            supabase_user_id=existing_supabase_user_id,
+            user_number=100001,
+            username="taken",
+            display_name="Taken User",
+        )
+        client = APIClient()
+
+        response = client.post(
+            "/api/v1/account",
+            {"username": "taken", "display_name": "New User",},
+            format="json",
+            HTTP_X_SUPABASE_USER_ID=str(new_supabase_user_id),
+        )
+
+        self.assertEqual(response.status_code, 409)
+        self.assertFalse(
+            Account.objects.filter(supabase_user_id=new_supabase_user_id).exists()
+        )
