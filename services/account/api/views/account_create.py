@@ -4,7 +4,11 @@ from rest_framework.response import Response
 
 from api.auth import AuthenticationError, get_current_user_from_headers
 from api.serializers import AccountSerializer
-from api.services.account_creation import AccountCreationError, get_or_create_account
+from api.services.account_creation import (
+    AccountCreationError,
+    UsernameAlreadyTakenError,
+    get_or_create_account,
+)
 
 
 @api_view(["POST"])
@@ -27,6 +31,8 @@ def create_account(request):
         )
     except AccountCreationError as exc:
         return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+    except UsernameAlreadyTakenError as exc:
+        return Response({"detail": str(exc)}, status=status.HTTP_409_CONFLICT)
 
     serializer = AccountSerializer(account)
     response_status = status.HTTP_201_CREATED if created else status.HTTP_200_OK
