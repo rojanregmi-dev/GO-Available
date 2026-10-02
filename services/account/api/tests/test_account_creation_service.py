@@ -1,11 +1,17 @@
 import uuid
 
+from django.db import connection
 from django.test import TestCase
 
 from api.services import get_or_create_account
+from api.services.user_numbers import SEQUENCE_NAME
 
 
 class AccountServiceTests(TestCase):
+    def setUp(self):
+        with connection.cursor() as cursor:
+            cursor.execute(f"ALTER SEQUENCE {SEQUENCE_NAME} RESTART WITH 1")
+
     def test_get_or_create_account_creates_new_account(self):
         supabase_user_id = uuid.uuid4()
 

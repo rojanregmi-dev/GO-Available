@@ -2,9 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
 from api.models import Account
-
-
-FIRST_USER_NUMBER = 100001
+from api.services.user_numbers import get_next_user_number
 
 
 class AccountCreationError(Exception):
@@ -24,11 +22,9 @@ def get_or_create_account(*, supabase_user_id, username, display_name=""):
     if existing_account is not None:
         raise UsernameAlreadyTakenError("Username is already taken.")
 
-    next_user_number = FIRST_USER_NUMBER + Account.objects.count()
-
     account = Account(
         supabase_user_id=supabase_user_id,
-        user_number=next_user_number,
+        user_number=get_next_user_number(),
         username=username,
         display_name=display_name,
     )
