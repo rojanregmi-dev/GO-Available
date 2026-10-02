@@ -4,3 +4,4 @@ python-dotenv
 black
 PyJWT
 dj-database-url
+psycopg[binary]
