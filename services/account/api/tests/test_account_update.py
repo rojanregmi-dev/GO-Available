@@ -1,11 +1,19 @@
 import uuid
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
 from api.models import Account
+from api.tests.auth_helpers import (
+    TEST_JWT_AUDIENCE,
+    TEST_JWT_SECRET,
+    authorization_header_for,
+)
 
 
+@override_settings(
+    SUPABASE_JWT_SECRET=TEST_JWT_SECRET, SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
+)
 class AccountUpdateEndpointTests(TestCase):
     def test_update_account_display_name(self):
         supabase_user_id = uuid.uuid4()
@@ -21,7 +29,7 @@ class AccountUpdateEndpointTests(TestCase):
             "/api/v1/account/me",
             {"display_name": "New Name"},
             format="json",
-            HTTP_X_SUPABASE_USER_ID=str(supabase_user_id),
+            HTTP_AUTHORIZATION=authorization_header_for(supabase_user_id),
         )
 
         account.refresh_from_db()
@@ -43,7 +51,7 @@ class AccountUpdateEndpointTests(TestCase):
             "/api/v1/account/me",
             {"username": "newname"},
             format="json",
-            HTTP_X_SUPABASE_USER_ID=str(supabase_user_id),
+            HTTP_AUTHORIZATION=authorization_header_for(supabase_user_id),
         )
 
         account.refresh_from_db()
@@ -65,7 +73,7 @@ class AccountUpdateEndpointTests(TestCase):
             "/api/v1/account/me",
             {"username": "Bad Username"},
             format="json",
-            HTTP_X_SUPABASE_USER_ID=str(supabase_user_id),
+            HTTP_AUTHORIZATION=authorization_header_for(supabase_user_id),
         )
 
         account.refresh_from_db()
@@ -93,7 +101,7 @@ class AccountUpdateEndpointTests(TestCase):
             "/api/v1/account/me",
             {"username": "taken"},
             format="json",
-            HTTP_X_SUPABASE_USER_ID=str(supabase_user_id),
+            HTTP_AUTHORIZATION=authorization_header_for(supabase_user_id),
         )
 
         account.refresh_from_db()
@@ -116,7 +124,7 @@ class AccountUpdateEndpointTests(TestCase):
             "/api/v1/account/me",
             {"display_name": "New Name"},
             format="json",
-            HTTP_X_SUPABASE_USER_ID=str(uuid.uuid4()),
+            HTTP_AUTHORIZATION=authorization_header_for(uuid.uuid4()),
         )
 
         self.assertEqual(response.status_code, 404)
@@ -140,7 +148,7 @@ class AccountUpdateEndpointTests(TestCase):
                 "display_name": "Still Rojan",
             },
             format="json",
-            HTTP_X_SUPABASE_USER_ID=str(supabase_user_id),
+            HTTP_AUTHORIZATION=authorization_header_for(supabase_user_id),
         )
 
         account.refresh_from_db()
