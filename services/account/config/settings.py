@@ -24,11 +24,15 @@ load_dotenv(BASE_DIR / ".env")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-only-insecure-secret-key")
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", "false").lower() == "true"
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
+if not SECRET_KEY and DEBUG:
+    SECRET_KEY = "dev-only-insecure-secret-key"
+if not SECRET_KEY:
+    raise ImproperlyConfigured("DJANGO_SECRET_KEY environment variable is required.")
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -132,6 +136,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_AUTHENTICATION_CLASSES": [],
 }
 
 SPECTACULAR_SETTINGS = {
@@ -139,7 +144,6 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Account identity APIs for GO Available mobile and web clients.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
-    "SECURITY": [{"bearerAuth": []}],
     "APPEND_COMPONENTS": {
         "securitySchemes": {
             "bearerAuth": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT",}
@@ -149,3 +153,6 @@ SPECTACULAR_SETTINGS = {
 
 SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", "")
 SUPABASE_JWT_AUDIENCE = os.getenv("SUPABASE_JWT_AUDIENCE", "authenticated")
+SUPABASE_JWT_ISSUER = os.getenv("SUPABASE_JWT_ISSUER", "")
+ALLOW_DEV_AUTH_HEADER = os.getenv("ALLOW_DEV_AUTH_HEADER", "false").lower() == "true"
+ENABLE_API_DOCS = os.getenv("ENABLE_API_DOCS", str(DEBUG).lower()).lower() == "true"

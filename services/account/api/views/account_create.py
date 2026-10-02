@@ -14,6 +14,7 @@ from api.services.account_creation import (
 
 
 @extend_schema(
+    auth=[{"bearerAuth": []}],
     request=inline_serializer(
         name="AccountCreateRequest",
         fields={

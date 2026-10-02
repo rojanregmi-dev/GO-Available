@@ -16,6 +16,7 @@ from api.services.account_update import (
 
 @extend_schema(
     methods=["GET"],
+    auth=[{"bearerAuth": []}],
     responses={
         200: AccountSerializer,
         401: OpenApiResponse(description="Authentication required."),
@@ -24,6 +25,7 @@ from api.services.account_update import (
 )
 @extend_schema(
     methods=["PATCH"],
+    auth=[{"bearerAuth": []}],
     request=inline_serializer(
         name="AccountUpdateRequest",
         fields={

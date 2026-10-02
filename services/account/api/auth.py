@@ -20,6 +20,9 @@ def get_current_user_from_headers(headers):
     if authorization:
         return _get_current_user_from_authorization_header(authorization)
 
+    if not settings.ALLOW_DEV_AUTH_HEADER:
+        raise AuthenticationError("Authentication required")
+
     return _get_current_user_from_dev_header(headers)
 
 
@@ -36,12 +39,15 @@ def _get_current_user_from_authorization_header(authorization):
         raise AuthenticationError("Supabase JWT secret is not configured")
 
     try:
-        payload = jwt.decode(
-            token,
-            settings.SUPABASE_JWT_SECRET,
-            algorithms=["HS256"],
-            audience=settings.SUPABASE_JWT_AUDIENCE,
-        )
+        decode_options = {
+            "key": settings.SUPABASE_JWT_SECRET,
+            "algorithms": ["HS256"],
+            "audience": settings.SUPABASE_JWT_AUDIENCE,
+        }
+        if settings.SUPABASE_JWT_ISSUER:
+            decode_options["issuer"] = settings.SUPABASE_JWT_ISSUER
+
+        payload = jwt.decode(token, **decode_options,)
     except InvalidTokenError as exc:
         raise AuthenticationError("Invalid bearer token") from exc
 
