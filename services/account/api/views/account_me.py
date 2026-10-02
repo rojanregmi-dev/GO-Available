@@ -1,4 +1,6 @@
+from drf_spectacular.utils import OpenApiResponse, extend_schema, inline_serializer
 from rest_framework import status
+from rest_framework import serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -12,6 +14,31 @@ from api.services.account_update import (
 )
 
 
+@extend_schema(
+    methods=["GET"],
+    responses={
+        200: AccountSerializer,
+        401: OpenApiResponse(description="Authentication required."),
+        404: OpenApiResponse(description="Account not found."),
+    },
+)
+@extend_schema(
+    methods=["PATCH"],
+    request=inline_serializer(
+        name="AccountUpdateRequest",
+        fields={
+            "username": serializers.CharField(required=False),
+            "display_name": serializers.CharField(required=False, allow_blank=True),
+        },
+    ),
+    responses={
+        200: AccountSerializer,
+        400: OpenApiResponse(description="Invalid account input."),
+        401: OpenApiResponse(description="Authentication required."),
+        404: OpenApiResponse(description="Account not found."),
+        409: OpenApiResponse(description="Username is already taken."),
+    },
+)
 @api_view(["GET", "PATCH"])
 def me(request):
     try:
