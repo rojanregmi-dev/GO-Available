@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 
 @extend_schema(
+    auth=[],
     responses={
         200: {
             "type": "object",
@@ -12,7 +13,7 @@ from rest_framework.response import Response
                 "service": {"type": "string"},
             },
         }
-    }
+    },
 )
 @api_view(["GET"])
 def health(request):
@@ -20,6 +21,7 @@ def health(request):
 
 
 @extend_schema(
+    auth=[],
     responses={
         200: {
             "type": "object",
@@ -28,7 +30,7 @@ def health(request):
                 "service": {"type": "string"},
             },
         }
-    }
+    },
 )
 @api_view(["GET"])
 def ready(request):

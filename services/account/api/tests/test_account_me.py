@@ -1,11 +1,19 @@
 import uuid
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
 from api.models import Account
+from api.tests.auth_helpers import (
+    TEST_JWT_AUDIENCE,
+    TEST_JWT_SECRET,
+    authorization_header_for,
+)
 
 
+@override_settings(
+    SUPABASE_JWT_SECRET=TEST_JWT_SECRET, SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
+)
 class AccountMeEndpointTests(TestCase):
     def test_me_returns_current_users_account(self):
         supabase_user_id = uuid.uuid4()
@@ -18,7 +26,8 @@ class AccountMeEndpointTests(TestCase):
 
         client = APIClient()
         response = client.get(
-            "/api/v1/account/me", HTTP_X_SUPABASE_USER_ID=str(supabase_user_id),
+            "/api/v1/account/me",
+            HTTP_AUTHORIZATION=authorization_header_for(supabase_user_id),
         )
 
         self.assertEqual(response.status_code, 200)
@@ -38,7 +47,8 @@ class AccountMeEndpointTests(TestCase):
         client = APIClient()
 
         response = client.get(
-            "/api/v1/account/me", HTTP_X_SUPABASE_USER_ID=str(uuid.uuid4()),
+            "/api/v1/account/me",
+            HTTP_AUTHORIZATION=authorization_header_for(uuid.uuid4()),
         )
 
         self.assertEqual(response.status_code, 404)

@@ -16,6 +16,11 @@ class ApiDocsTests(TestCase):
             response.data["components"]["securitySchemes"]["bearerAuth"]["scheme"],
             "bearer",
         )
+        self.assertEqual(
+            response.data["paths"]["/api/v1/account"]["post"]["security"],
+            [{"bearerAuth": []}],
+        )
+        self.assertNotIn("security", response.data["paths"]["/api/v1/health"]["get"])
 
     def test_docs_endpoint_returns_swagger_ui(self):
         client = APIClient()
