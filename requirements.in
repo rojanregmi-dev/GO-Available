@@ -5,3 +5,4 @@ black
 PyJWT
 dj-database-url
 psycopg[binary]
+drf-spectacular
