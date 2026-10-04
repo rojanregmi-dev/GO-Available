@@ -31,10 +31,12 @@ class AccountServiceTests(TestCase):
         supabase_user_id = uuid.uuid4()
 
         first_account, first_created = get_or_create_account(
-            supabase_user_id=supabase_user_id, username="service_user",
+            supabase_user_id=supabase_user_id,
+            username="service_user",
         )
         second_account, second_created = get_or_create_account(
-            supabase_user_id=supabase_user_id, username="different_username",
+            supabase_user_id=supabase_user_id,
+            username="different_username",
         )
 
         self.assertTrue(first_created)

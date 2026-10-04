@@ -36,7 +36,8 @@ def create_account(request):
         current_user = get_current_user_from_headers(request.headers)
     except AuthenticationError:
         return Response(
-            {"detail": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED,
+            {"detail": "Authentication required."},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
 
     username = request.data.get("username", "")

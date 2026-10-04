@@ -12,7 +12,8 @@ from api.tests.auth_helpers import (
 
 
 @override_settings(
-    SUPABASE_JWT_SECRET=TEST_JWT_SECRET, SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
+    SUPABASE_JWT_SECRET=TEST_JWT_SECRET,
+    SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
 )
 class AccountMeEndpointTests(TestCase):
     def test_me_returns_current_users_account(self):

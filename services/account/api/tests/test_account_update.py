@@ -12,7 +12,8 @@ from api.tests.auth_helpers import (
 
 
 @override_settings(
-    SUPABASE_JWT_SECRET=TEST_JWT_SECRET, SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
+    SUPABASE_JWT_SECRET=TEST_JWT_SECRET,
+    SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
 )
 class AccountUpdateEndpointTests(TestCase):
     def test_update_account_display_name(self):
@@ -112,7 +113,9 @@ class AccountUpdateEndpointTests(TestCase):
         client = APIClient()
 
         response = client.patch(
-            "/api/v1/account/me", {"display_name": "New Name"}, format="json",
+            "/api/v1/account/me",
+            {"display_name": "New Name"},
+            format="json",
         )
 
         self.assertEqual(response.status_code, 401)
