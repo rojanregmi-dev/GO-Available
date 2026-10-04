@@ -12,7 +12,8 @@ from api.tests.auth_helpers import (
 
 
 @override_settings(
-    SUPABASE_JWT_SECRET=TEST_JWT_SECRET, SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
+    SUPABASE_JWT_SECRET=TEST_JWT_SECRET,
+    SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
 )
 class AccountCreateEndpointTests(TestCase):
     def test_create_account_creates_profile_for_current_user(self):
@@ -21,7 +22,10 @@ class AccountCreateEndpointTests(TestCase):
 
         response = client.post(
             "/api/v1/account",
-            {"username": "rojan", "display_name": "Rojan",},
+            {
+                "username": "rojan",
+                "display_name": "Rojan",
+            },
             format="json",
             HTTP_AUTHORIZATION=authorization_header_for(supabase_user_id),
         )
@@ -39,7 +43,10 @@ class AccountCreateEndpointTests(TestCase):
 
         response = client.post(
             "/api/v1/account",
-            {"username": "rojan", "display_name": "Rojan",},
+            {
+                "username": "rojan",
+                "display_name": "Rojan",
+            },
             format="json",
         )
 
@@ -57,7 +64,10 @@ class AccountCreateEndpointTests(TestCase):
 
         response = client.post(
             "/api/v1/account",
-            {"username": "changed", "display_name": "Changed",},
+            {
+                "username": "changed",
+                "display_name": "Changed",
+            },
             format="json",
             HTTP_AUTHORIZATION=authorization_header_for(supabase_user_id),
         )
@@ -73,7 +83,10 @@ class AccountCreateEndpointTests(TestCase):
 
         response = client.post(
             "/api/v1/account",
-            {"username": "Bad Username", "display_name": "Rojan",},
+            {
+                "username": "Bad Username",
+                "display_name": "Rojan",
+            },
             format="json",
             HTTP_AUTHORIZATION=authorization_header_for(supabase_user_id),
         )
@@ -93,7 +106,10 @@ class AccountCreateEndpointTests(TestCase):
 
         response = client.post(
             "/api/v1/account",
-            {"username": "taken", "display_name": "New User",},
+            {
+                "username": "taken",
+                "display_name": "New User",
+            },
             format="json",
             HTTP_AUTHORIZATION=authorization_header_for(new_supabase_user_id),
         )

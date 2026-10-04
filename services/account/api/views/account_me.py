@@ -47,7 +47,8 @@ def me(request):
         current_user = get_current_user_from_headers(request.headers)
     except AuthenticationError:
         return Response(
-            {"detail": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED,
+            {"detail": "Authentication required."},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
 
     account = Account.objects.filter(
@@ -56,7 +57,8 @@ def me(request):
 
     if account is None:
         return Response(
-            {"detail": "Account not found."}, status=status.HTTP_404_NOT_FOUND,
+            {"detail": "Account not found."},
+            status=status.HTTP_404_NOT_FOUND,
         )
 
     if request.method == "PATCH":

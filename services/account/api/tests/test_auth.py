@@ -9,12 +9,16 @@ from api.tests.auth_helpers import TEST_JWT_AUDIENCE, TEST_JWT_SECRET
 
 class AccountAuthBoundaryTests(SimpleTestCase):
     @override_settings(
-        SUPABASE_JWT_SECRET=TEST_JWT_SECRET, SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
+        SUPABASE_JWT_SECRET=TEST_JWT_SECRET,
+        SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
     )
     def test_get_current_user_from_headers_returns_user_from_bearer_token(self):
         supabase_user_id = uuid.uuid4()
         token = jwt.encode(
-            {"sub": str(supabase_user_id), "aud": "authenticated",},
+            {
+                "sub": str(supabase_user_id),
+                "aud": "authenticated",
+            },
             TEST_JWT_SECRET,
             algorithm="HS256",
         )
@@ -46,7 +50,8 @@ class AccountAuthBoundaryTests(SimpleTestCase):
             get_current_user_from_headers({})
 
     @override_settings(
-        SUPABASE_JWT_SECRET=TEST_JWT_SECRET, SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
+        SUPABASE_JWT_SECRET=TEST_JWT_SECRET,
+        SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
     )
     def test_get_current_user_from_headers_rejects_invalid_bearer_token(self):
         with self.assertRaises(AuthenticationError):

@@ -1,6 +1,5 @@
 from django.db import connection
 
-
 FIRST_USER_NUMBER = 100001
 SEQUENCE_NAME = "account_user_number_seq"
 

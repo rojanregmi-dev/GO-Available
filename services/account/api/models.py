@@ -19,7 +19,9 @@ class Account(models.Model):
     supabase_user_id = models.UUIDField(unique=True)
     user_number = models.PositiveBigIntegerField(unique=True)
     username = models.CharField(
-        max_length=30, unique=True, validators=[validate_username],
+        max_length=30,
+        unique=True,
+        validators=[validate_username],
     )
     display_name = models.CharField(max_length=80, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

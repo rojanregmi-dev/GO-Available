@@ -47,7 +47,10 @@ def _get_current_user_from_authorization_header(authorization):
         if settings.SUPABASE_JWT_ISSUER:
             decode_options["issuer"] = settings.SUPABASE_JWT_ISSUER
 
-        payload = jwt.decode(token, **decode_options,)
+        payload = jwt.decode(
+            token,
+            **decode_options,
+        )
     except InvalidTokenError as exc:
         raise AuthenticationError("Invalid bearer token") from exc
 

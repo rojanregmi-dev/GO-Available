@@ -1,6 +1,5 @@
 import jwt
 
-
 TEST_JWT_SECRET = "test-secret-that-is-at-least-32-bytes"
 TEST_JWT_AUDIENCE = "authenticated"
 
