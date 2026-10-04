@@ -21,11 +21,24 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
+
+def env_bool(name, default=False):
+    """Read true/false settings from environment variables."""
+    return os.getenv(name, str(default)).lower() == "true"
+
+
+def env_list(name, default=""):
+    """Read comma-separated environment variables into a clean list."""
+    return [
+        value.strip() for value in os.getenv(name, default).split(",") if value.strip()
+    ]
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DJANGO_DEBUG", "false").lower() == "true"
+DEBUG = env_bool("DJANGO_DEBUG", False)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
@@ -34,11 +47,10 @@ if not SECRET_KEY and DEBUG:
 if not SECRET_KEY:
     raise ImproperlyConfigured("DJANGO_SECRET_KEY environment variable is required.")
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
-    if host.strip()
-]
+# Hosts and trusted origins are configured per environment because local,
+# staging, and production deployments use different domains.
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
 
 # Application definition
@@ -166,5 +178,19 @@ SPECTACULAR_SETTINGS = {
 SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", "")
 SUPABASE_JWT_AUDIENCE = os.getenv("SUPABASE_JWT_AUDIENCE", "authenticated")
 SUPABASE_JWT_ISSUER = os.getenv("SUPABASE_JWT_ISSUER", "")
-ALLOW_DEV_AUTH_HEADER = os.getenv("ALLOW_DEV_AUTH_HEADER", "false").lower() == "true"
-ENABLE_API_DOCS = os.getenv("ENABLE_API_DOCS", str(DEBUG).lower()).lower() == "true"
+ALLOW_DEV_AUTH_HEADER = env_bool("ALLOW_DEV_AUTH_HEADER", False)
+ENABLE_API_DOCS = env_bool("ENABLE_API_DOCS", DEBUG)
+
+# Production security defaults. Local development can keep HTTPS redirect off,
+# while hosted environments can enable these with environment variables.
+SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", False)
+SESSION_COOKIE_SECURE = env_bool("DJANGO_SESSION_COOKIE_SECURE", not DEBUG)
+CSRF_COOKIE_SECURE = env_bool("DJANGO_CSRF_COOKIE_SECURE", not DEBUG)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = "DENY"
+SECURE_REFERRER_POLICY = os.getenv("DJANGO_SECURE_REFERRER_POLICY", "same-origin")
+
+# Hosted Django apps often sit behind a proxy/load balancer that terminates HTTPS.
+# This tells Django when the original client request was HTTPS.
+if env_bool("DJANGO_TRUST_PROXY_SSL_HEADER", False):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
