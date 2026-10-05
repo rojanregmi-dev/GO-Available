@@ -64,6 +64,10 @@ docker build -f services/account/Dockerfile .
 
 Runtime details are documented in [docs/ACCOUNT_SERVICE_RUNTIME.md](docs/ACCOUNT_SERVICE_RUNTIME.md).
 
+Account production readiness is tracked in [docs/ACCOUNT_SERVICE_PRODUCTION_READINESS.md](docs/ACCOUNT_SERVICE_PRODUCTION_READINESS.md).
+
+The 4-month production roadmap is tracked in [docs/GO_A_4_MONTH_PRODUCTION_ROADMAP.md](docs/GO_A_4_MONTH_PRODUCTION_ROADMAP.md).
+
 ## First Foundation Goal
 
 Create the Django foundation inside `services/account/`, then add the first Account Service health endpoint:
