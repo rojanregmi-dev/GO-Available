@@ -6,3 +6,4 @@ PyJWT
 dj-database-url
 psycopg[binary]
 drf-spectacular
+gunicorn>=23,<24

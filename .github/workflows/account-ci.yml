@@ -57,6 +57,10 @@ jobs:
         working-directory: services/account
         run: python manage.py check
 
+      - name: Check production WSGI runtime
+        working-directory: services/account
+        run: python -m gunicorn --check-config config.wsgi:application
+
       - name: Check migrations
         working-directory: services/account
         run: python manage.py makemigrations --check --dry-run

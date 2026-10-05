@@ -42,8 +42,21 @@ Relationships, messages, ownership, blocks, and service records must use stable 
 - Python 3.10.6 locally
 - Django 5.2
 - Django REST Framework
-- PostgreSQL planned per service
+- PostgreSQL per service
 - Supabase Auth planned for authentication
+- Gunicorn for production WSGI runtime
+
+## Account Service Runtime
+
+Account Service local development still uses Django management commands.
+Production hosting should run the WSGI app with Gunicorn:
+
+```zsh
+cd services/account
+python -m gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+```
+
+Runtime details are documented in [docs/ACCOUNT_SERVICE_RUNTIME.md](docs/ACCOUNT_SERVICE_RUNTIME.md).
 
 ## First Foundation Goal
 
