@@ -1,0 +1,14 @@
+.git/
+.github/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Never copy local secrets or development databases into images.
+.env
+services/account/.env
+*.sqlite3
+
+# Local-only planning notes.
+docs/GO_A_BLUEPRINT.md
