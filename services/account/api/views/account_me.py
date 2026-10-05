@@ -1,8 +1,9 @@
 from drf_spectacular.utils import OpenApiResponse, extend_schema, inline_serializer
 from rest_framework import status
 from rest_framework import serializers
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
+from api.throttles import AccountUpdateThrottle
 
 from api.auth import AuthenticationError, get_current_user_from_headers
 from api.models import Account
@@ -39,9 +40,11 @@ from api.services.account_update import (
         401: OpenApiResponse(description="Authentication required."),
         404: OpenApiResponse(description="Account not found."),
         409: OpenApiResponse(description="Username is already taken."),
+        429: OpenApiResponse(description="Too many account update requests."),
     },
 )
 @api_view(["GET", "PATCH"])
+@throttle_classes([AccountUpdateThrottle])
 def me(request):
     try:
         current_user = get_current_user_from_headers(request.headers)

@@ -1,11 +1,12 @@
 from drf_spectacular.utils import OpenApiResponse, extend_schema, inline_serializer
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
 from rest_framework import serializers
 
 from api.auth import AuthenticationError, get_current_user_from_headers
 from api.serializers import AccountSerializer
+from api.throttles import AccountCreateThrottle
 from api.services.account_creation import (
     AccountCreationError,
     UsernameAlreadyTakenError,
@@ -28,9 +29,11 @@ from api.services.account_creation import (
         400: OpenApiResponse(description="Invalid account input."),
         401: OpenApiResponse(description="Authentication required."),
         409: OpenApiResponse(description="Username is already taken."),
+        429: OpenApiResponse(description="Too many account creation requests."),
     },
 )
 @api_view(["POST"])
+@throttle_classes([AccountCreateThrottle])
 def create_account(request):
     try:
         current_user = get_current_user_from_headers(request.headers)
