@@ -61,6 +61,9 @@ jobs:
         working-directory: services/account
         run: python -m gunicorn --check-config config.wsgi:application
 
+      - name: Build Account Service container
+        run: docker build -f services/account/Dockerfile .
+
       - name: Check migrations
         working-directory: services/account
         run: python manage.py makemigrations --check --dry-run

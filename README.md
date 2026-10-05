@@ -56,6 +56,12 @@ cd services/account
 python -m gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
 ```
 
+The Account Service can also be built as a container:
+
+```zsh
+docker build -f services/account/Dockerfile .
+```
+
 Runtime details are documented in [docs/ACCOUNT_SERVICE_RUNTIME.md](docs/ACCOUNT_SERVICE_RUNTIME.md).
 
 ## First Foundation Goal

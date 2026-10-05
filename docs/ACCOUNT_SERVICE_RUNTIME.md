@@ -45,6 +45,23 @@ SUPABASE_JWT_SECRET
 SUPABASE_JWT_AUDIENCE
 ```
 
+## Container Runtime
+
+The Account Service has a Dockerfile for hosts that deploy containers:
+
+```zsh
+docker build -f services/account/Dockerfile .
+```
+
+The image:
+
+- installs pinned Python dependencies from `requirements.txt`
+- copies only the Account Service source into the runtime image
+- runs as a non-root `appuser`
+- starts Gunicorn with the host-provided `PORT`
+
+The `.dockerignore` file keeps local secrets, virtual environments, Python caches, and SQLite databases out of the image.
+
 ## CI Runtime Check
 
 GitHub Actions verifies that Gunicorn can load the Account Service WSGI app:
@@ -54,3 +71,5 @@ python -m gunicorn --check-config config.wsgi:application
 ```
 
 This does not start a public server. It checks that production runtime configuration can be imported successfully.
+
+GitHub Actions also builds the Account Service container to catch Dockerfile or dependency problems before merge.
