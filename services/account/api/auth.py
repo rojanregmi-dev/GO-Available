@@ -20,7 +20,7 @@ def get_current_user_from_headers(headers):
     if authorization:
         return _get_current_user_from_authorization_header(authorization)
 
-    if not settings.ALLOW_DEV_AUTH_HEADER:
+    if not settings.ALLOW_DEV_AUTH_HEADER or not settings.DEBUG:
         raise AuthenticationError("Authentication required")
 
     return _get_current_user_from_dev_header(headers)

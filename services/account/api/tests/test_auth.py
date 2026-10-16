@@ -33,7 +33,7 @@ class AccountAuthBoundaryTests(SimpleTestCase):
     def test_get_current_user_from_headers_returns_user_from_dev_header(self):
         supabase_user_id = uuid.uuid4()
 
-        with override_settings(ALLOW_DEV_AUTH_HEADER=True):
+        with override_settings(ALLOW_DEV_AUTH_HEADER=True, DEBUG=True):
             current_user = get_current_user_from_headers(
                 {"X-Supabase-User-Id": str(supabase_user_id)}
             )
@@ -44,6 +44,11 @@ class AccountAuthBoundaryTests(SimpleTestCase):
     def test_get_current_user_from_headers_rejects_dev_header_by_default(self):
         with self.assertRaises(AuthenticationError):
             get_current_user_from_headers({"X-Supabase-User-Id": str(uuid.uuid4())})
+
+    def test_get_current_user_from_headers_rejects_dev_header_when_debug_is_false(self):
+        with override_settings(ALLOW_DEV_AUTH_HEADER=True, DEBUG=False):
+            with self.assertRaises(AuthenticationError):
+                get_current_user_from_headers({"X-Supabase-User-Id": str(uuid.uuid4())})
 
     def test_get_current_user_from_headers_rejects_missing_identity(self):
         with self.assertRaises(AuthenticationError):
@@ -58,6 +63,6 @@ class AccountAuthBoundaryTests(SimpleTestCase):
             get_current_user_from_headers({"Authorization": "Bearer not-a-token"})
 
     def test_get_current_user_from_headers_rejects_invalid_dev_header_uuid(self):
-        with override_settings(ALLOW_DEV_AUTH_HEADER=True):
+        with override_settings(ALLOW_DEV_AUTH_HEADER=True, DEBUG=True):
             with self.assertRaises(AuthenticationError):
                 get_current_user_from_headers({"X-Supabase-User-Id": "not-a-uuid"})

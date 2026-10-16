@@ -185,6 +185,9 @@ SUPABASE_JWT_ISSUER = os.getenv("SUPABASE_JWT_ISSUER", "")
 ALLOW_DEV_AUTH_HEADER = env_bool("ALLOW_DEV_AUTH_HEADER", False)
 ENABLE_API_DOCS = env_bool("ENABLE_API_DOCS", DEBUG)
 
+if ALLOW_DEV_AUTH_HEADER and not DEBUG:
+    raise ImproperlyConfigured("ALLOW_DEV_AUTH_HEADER requires DJANGO_DEBUG=true.")
+
 # Production security defaults. Local development can keep HTTPS redirect off,
 # while hosted environments can enable these with environment variables.
 SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", False)
