@@ -30,9 +30,10 @@ jobs:
       DJANGO_DEBUG: "false"
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
       DATABASE_URL: postgres://goa_account:goa_account_password@127.0.0.1:5432/goa_account_ci
-      SUPABASE_JWT_SECRET: test-secret-that-is-at-least-32-bytes
+      # CI validates the production configuration contract without contacting Supabase.
+      SUPABASE_JWKS_URL: https://ci.example.invalid/auth/v1/.well-known/jwks.json
       SUPABASE_JWT_AUDIENCE: authenticated
-      SUPABASE_JWT_ISSUER: ""
+      SUPABASE_JWT_ISSUER: https://ci.example.invalid/auth/v1
       ALLOW_DEV_AUTH_HEADER: "false"
       ENABLE_API_DOCS: "true"
 
