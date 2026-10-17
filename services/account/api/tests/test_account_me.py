@@ -1,5 +1,7 @@
 import uuid
+from unittest.mock import patch
 
+from django.db import OperationalError
 from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
@@ -56,3 +58,27 @@ class AccountMeEndpointTests(SupabaseAuthTestMixin, TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+    @patch("api.views.account_me.Account.objects.filter")
+    @patch("api.exception_handlers.logger.exception")
+    def test_me_returns_retryable_response_when_database_is_unavailable(
+        self, logger_mock, filter_mock
+    ):
+        filter_mock.side_effect = OperationalError("database unavailable")
+        client = APIClient()
+
+        response = client.get(
+            "/api/v1/account/me",
+            HTTP_AUTHORIZATION=authorization_header_for(uuid.uuid4()),
+        )
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response["Retry-After"], "5")
+        self.assertEqual(
+            response.json(),
+            {
+                "detail": "Account database is temporarily unavailable.",
+                "code": "database_unavailable",
+            },
+        )
+        logger_mock.assert_called_once()
