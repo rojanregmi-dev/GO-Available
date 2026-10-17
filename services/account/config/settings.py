@@ -179,7 +179,7 @@ SPECTACULAR_SETTINGS = {
     },
 }
 
-SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", "")
+SUPABASE_JWKS_URL = os.getenv("SUPABASE_JWKS_URL", "")
 SUPABASE_JWT_AUDIENCE = os.getenv("SUPABASE_JWT_AUDIENCE", "authenticated")
 SUPABASE_JWT_ISSUER = os.getenv("SUPABASE_JWT_ISSUER", "")
 ALLOW_DEV_AUTH_HEADER = env_bool("ALLOW_DEV_AUTH_HEADER", False)
@@ -187,6 +187,10 @@ ENABLE_API_DOCS = env_bool("ENABLE_API_DOCS", DEBUG)
 
 if ALLOW_DEV_AUTH_HEADER and not DEBUG:
     raise ImproperlyConfigured("ALLOW_DEV_AUTH_HEADER requires DJANGO_DEBUG=true.")
+if not DEBUG and not SUPABASE_JWKS_URL:
+    raise ImproperlyConfigured("SUPABASE_JWKS_URL is required in production.")
+if not DEBUG and not SUPABASE_JWT_ISSUER:
+    raise ImproperlyConfigured("SUPABASE_JWT_ISSUER is required in production.")
 
 # Production security defaults. Local development can keep HTTPS redirect off,
 # while hosted environments can enable these with environment variables.
