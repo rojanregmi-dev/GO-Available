@@ -6,16 +6,19 @@ from rest_framework.test import APIClient
 from api.models import Account
 from api.tests.auth_helpers import (
     TEST_JWT_AUDIENCE,
-    TEST_JWT_SECRET,
+    TEST_JWT_ISSUER,
+    TEST_JWKS_URL,
+    SupabaseAuthTestMixin,
     authorization_header_for,
 )
 
 
 @override_settings(
-    SUPABASE_JWT_SECRET=TEST_JWT_SECRET,
+    SUPABASE_JWKS_URL=TEST_JWKS_URL,
     SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
+    SUPABASE_JWT_ISSUER=TEST_JWT_ISSUER,
 )
-class AccountMeEndpointTests(TestCase):
+class AccountMeEndpointTests(SupabaseAuthTestMixin, TestCase):
     def test_me_returns_current_users_account(self):
         supabase_user_id = uuid.uuid4()
         account = Account.objects.create(

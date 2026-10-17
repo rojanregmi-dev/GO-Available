@@ -7,7 +7,9 @@ from rest_framework.test import APIClient
 from api.models import Account
 from api.tests.auth_helpers import (
     TEST_JWT_AUDIENCE,
-    TEST_JWT_SECRET,
+    TEST_JWT_ISSUER,
+    TEST_JWKS_URL,
+    SupabaseAuthTestMixin,
     authorization_header_for,
 )
 
@@ -22,12 +24,14 @@ THROTTLE_TEST_REST_FRAMEWORK = {
 
 
 @override_settings(
-    SUPABASE_JWT_SECRET=TEST_JWT_SECRET,
+    SUPABASE_JWKS_URL=TEST_JWKS_URL,
     SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
+    SUPABASE_JWT_ISSUER=TEST_JWT_ISSUER,
     REST_FRAMEWORK=THROTTLE_TEST_REST_FRAMEWORK,
 )
-class AccountRateLimitTests(TestCase):
+class AccountRateLimitTests(SupabaseAuthTestMixin, TestCase):
     def setUp(self):
+        super().setUp()
         cache.clear()
         self.client = APIClient()
 

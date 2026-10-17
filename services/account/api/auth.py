@@ -1,9 +1,11 @@
 from dataclasses import dataclass
+from functools import lru_cache
 from uuid import UUID
 
 import jwt
 from django.conf import settings
-from jwt import InvalidTokenError
+from jwt import PyJWKClient
+from jwt.exceptions import InvalidTokenError, PyJWKClientError
 
 
 @dataclass(frozen=True)
@@ -13,6 +15,12 @@ class CurrentUser:
 
 class AuthenticationError(Exception):
     pass
+
+
+@lru_cache(maxsize=4)
+def _get_jwks_client(jwks_url):
+    """Reuse JWKS clients so their public-key cache survives across requests."""
+    return PyJWKClient(jwks_url)
 
 
 def get_current_user_from_headers(headers):
@@ -35,23 +43,23 @@ def _get_current_user_from_authorization_header(authorization):
     if not token:
         raise AuthenticationError("Missing bearer token")
 
-    if not settings.SUPABASE_JWT_SECRET:
-        raise AuthenticationError("Supabase JWT secret is not configured")
+    if not settings.SUPABASE_JWKS_URL:
+        raise AuthenticationError("Supabase JWKS URL is not configured")
+    if not settings.SUPABASE_JWT_ISSUER:
+        raise AuthenticationError("Supabase JWT issuer is not configured")
 
     try:
-        decode_options = {
-            "key": settings.SUPABASE_JWT_SECRET,
-            "algorithms": ["HS256"],
-            "audience": settings.SUPABASE_JWT_AUDIENCE,
-        }
-        if settings.SUPABASE_JWT_ISSUER:
-            decode_options["issuer"] = settings.SUPABASE_JWT_ISSUER
-
+        signing_key = _get_jwks_client(
+            settings.SUPABASE_JWKS_URL
+        ).get_signing_key_from_jwt(token)
         payload = jwt.decode(
             token,
-            **decode_options,
+            key=signing_key.key,
+            algorithms=["ES256"],
+            audience=settings.SUPABASE_JWT_AUDIENCE,
+            issuer=settings.SUPABASE_JWT_ISSUER,
         )
-    except InvalidTokenError as exc:
+    except (InvalidTokenError, PyJWKClientError) as exc:
         raise AuthenticationError("Invalid bearer token") from exc
 
     raw_user_id = payload.get("sub")

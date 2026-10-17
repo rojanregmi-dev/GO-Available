@@ -2,7 +2,7 @@ Django>=5.2,<6.0
 djangorestframework
 python-dotenv
 black
-PyJWT
+PyJWT[crypto]
 dj-database-url
 psycopg[binary]
 drf-spectacular

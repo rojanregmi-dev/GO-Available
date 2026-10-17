@@ -1,30 +1,28 @@
 import uuid
 
-import jwt
 from django.test import SimpleTestCase, override_settings
 
 from api.auth import AuthenticationError, CurrentUser, get_current_user_from_headers
-from api.tests.auth_helpers import TEST_JWT_AUDIENCE, TEST_JWT_SECRET
+from api.tests.auth_helpers import (
+    TEST_JWT_AUDIENCE,
+    TEST_JWT_ISSUER,
+    TEST_JWKS_URL,
+    SupabaseAuthTestMixin,
+    authorization_header_for,
+)
 
 
-class AccountAuthBoundaryTests(SimpleTestCase):
+class AccountAuthBoundaryTests(SupabaseAuthTestMixin, SimpleTestCase):
     @override_settings(
-        SUPABASE_JWT_SECRET=TEST_JWT_SECRET,
+        SUPABASE_JWKS_URL=TEST_JWKS_URL,
         SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
+        SUPABASE_JWT_ISSUER=TEST_JWT_ISSUER,
     )
     def test_get_current_user_from_headers_returns_user_from_bearer_token(self):
         supabase_user_id = uuid.uuid4()
-        token = jwt.encode(
-            {
-                "sub": str(supabase_user_id),
-                "aud": "authenticated",
-            },
-            TEST_JWT_SECRET,
-            algorithm="HS256",
-        )
 
         current_user = get_current_user_from_headers(
-            {"Authorization": f"Bearer {token}"}
+            {"Authorization": authorization_header_for(supabase_user_id)}
         )
 
         self.assertIsInstance(current_user, CurrentUser)
@@ -55,8 +53,9 @@ class AccountAuthBoundaryTests(SimpleTestCase):
             get_current_user_from_headers({})
 
     @override_settings(
-        SUPABASE_JWT_SECRET=TEST_JWT_SECRET,
+        SUPABASE_JWKS_URL=TEST_JWKS_URL,
         SUPABASE_JWT_AUDIENCE=TEST_JWT_AUDIENCE,
+        SUPABASE_JWT_ISSUER=TEST_JWT_ISSUER,
     )
     def test_get_current_user_from_headers_rejects_invalid_bearer_token(self):
         with self.assertRaises(AuthenticationError):
