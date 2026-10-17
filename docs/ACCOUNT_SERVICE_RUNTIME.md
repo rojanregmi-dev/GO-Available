@@ -25,6 +25,32 @@ cd services/account
 ../../.venv/bin/python manage.py runserver 127.0.0.1:8000
 ```
 
+## Supabase Authentication Smoke Test
+
+After creating or signing in a test user through Supabase, keep the access token
+out of source control and out of chat. Store it only in the current terminal:
+
+```zsh
+cd services/account
+read -s SUPABASE_SMOKE_TEST_TOKEN
+export SUPABASE_SMOKE_TEST_TOKEN
+../../.venv/bin/python scripts/account_auth_smoke_test.py
+unset SUPABASE_SMOKE_TEST_TOKEN
+```
+
+The smoke test calls `GET /api/v1/account/me`. A `200` means the token
+identified an existing GO account. A `404` means Supabase authentication
+succeeded but the GO account profile does not exist yet. A `401` means Django
+rejected the token.
+
+Use `ACCOUNT_API_URL` when testing a hosted Account Service instead of the
+default local URL:
+
+```zsh
+ACCOUNT_API_URL=https://api.example.com/api/v1/account/me \
+  ../../.venv/bin/python scripts/account_auth_smoke_test.py
+```
+
 ## Production Start Command
 
 Production hosting should run the WSGI app through Gunicorn:
