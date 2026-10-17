@@ -89,6 +89,13 @@ The image:
 
 The `.dockerignore` file keeps local secrets, virtual environments, Python caches, and SQLite databases out of the image.
 
+The health endpoints have different jobs:
+
+- `/api/v1/health` confirms that the web process is responding.
+- `/api/v1/ready` runs a small database query and returns `503` when the Account database is unavailable.
+
+A hosting platform should send traffic to the Account Service only after the readiness endpoint reports `200`.
+
 ## CI Runtime Check
 
 GitHub Actions verifies that Gunicorn can load the Account Service WSGI app:
@@ -100,3 +107,4 @@ python -m gunicorn --check-config config.wsgi:application
 This does not start a public server. It checks that production runtime configuration can be imported successfully.
 
 GitHub Actions also builds the Account Service container to catch Dockerfile or dependency problems before merge.
+After the build, CI starts the container with production-style environment variables and requests both `/api/v1/health` and `/api/v1/ready`. This catches runtime startup failures that an image build alone cannot detect.
