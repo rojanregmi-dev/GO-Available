@@ -96,6 +96,8 @@ The health endpoints have different jobs:
 
 A hosting platform should send traffic to the Account Service only after the readiness endpoint reports `200`.
 
+If PostgreSQL becomes temporarily unavailable during an authenticated Account request, the API returns `503` with a `Retry-After: 5` header and logs the failure. Clients should retry that response rather than treating it as a permanent account error.
+
 ## CI Runtime Check
 
 GitHub Actions verifies that Gunicorn can load the Account Service WSGI app:
