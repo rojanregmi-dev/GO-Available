@@ -120,13 +120,13 @@ Remaining proof:
 Status:
 
 ```text
-In progress
+Implemented; hosted proof remains
 ```
 
 Current foundation:
 
 - Bearer JWT parsing exists.
-- Supabase JWT secret, audience, and issuer settings exist.
+- Supabase JWKS URL, audience, and issuer settings exist.
 - Dev auth header is disabled by default.
 - CI sets `ALLOW_DEV_AUTH_HEADER=false`.
 
@@ -144,13 +144,7 @@ X-Supabase-User-Id
 
 must never be usable accidentally in production.
 
-Next branch goal:
-
-```text
-backend/account-supabase-auth-hardening
-```
-
-Required tests:
+The local authentication contract is covered by tests:
 
 - missing token is rejected
 - malformed token is rejected
@@ -158,6 +152,10 @@ Required tests:
 - valid token is accepted
 - dev header works only when explicitly enabled
 - dev header is rejected when disabled
+
+Remaining proof:
+
+- validate a real Supabase access token against a hosted Account Service
 
 ### Security Settings
 
@@ -293,7 +291,7 @@ DJANGO_DEBUG=false
 DJANGO_ALLOWED_HOSTS
 DJANGO_CSRF_TRUSTED_ORIGINS
 DATABASE_URL
-SUPABASE_JWT_SECRET
+SUPABASE_JWKS_URL
 SUPABASE_JWT_AUDIENCE
 SUPABASE_JWT_ISSUER
 ALLOW_DEV_AUTH_HEADER=false
@@ -379,25 +377,19 @@ Account backend can be called foundation-complete when all of these are true:
 
 ## Next Move
 
-Current branch:
+Current production slice:
 
 ```text
-backend/account-supabase-auth-hardening
-```
-
-Next production slice:
-
-```text
-Harden Account Service Supabase auth
+Verify the Account Service hostable runtime
 ```
 
 Primary files:
 
 ```text
-services/account/api/auth.py
-services/account/api/tests/test_auth.py
-services/account/config/settings.py
-services/account/.env.example
+services/account/api/views/health.py
+services/account/api/tests/test_health.py
+services/account/Dockerfile
+docs/ACCOUNT_SERVICE_RUNTIME.md
 ```
 
 Primary learning goal:

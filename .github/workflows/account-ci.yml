@@ -63,7 +63,44 @@ jobs:
         run: python -m gunicorn --check-config config.wsgi:application
 
       - name: Build Account Service container
-        run: docker build -f services/account/Dockerfile .
+        run: docker build --tag goa-account-ci -f services/account/Dockerfile .
+
+      - name: Smoke test Account Service container
+        run: |
+          docker run --detach --rm \
+            --name goa-account-ci \
+            --network host \
+            --env DJANGO_SECRET_KEY \
+            --env DJANGO_DEBUG \
+            --env DJANGO_ALLOWED_HOSTS \
+            --env DATABASE_URL \
+            --env SUPABASE_JWKS_URL \
+            --env SUPABASE_JWT_AUDIENCE \
+            --env SUPABASE_JWT_ISSUER \
+            --env ALLOW_DEV_AUTH_HEADER \
+            --env ENABLE_API_DOCS \
+            --env PORT=8000 \
+            goa-account-ci
+
+          cleanup() {
+            docker logs goa-account-ci || true
+            docker stop goa-account-ci || true
+          }
+          trap cleanup EXIT
+
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8000/api/v1/health; then
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              echo "Account Service container did not become healthy."
+              exit 1
+            fi
+            sleep 1
+          done
+
+          curl --fail --silent --show-error http://127.0.0.1:8000/api/v1/health
+          curl --fail --silent --show-error http://127.0.0.1:8000/api/v1/ready
 
       - name: Check migrations
         working-directory: services/account
