@@ -5,7 +5,11 @@ from uuid import UUID
 import jwt
 from django.conf import settings
 from jwt import PyJWKClient
-from jwt.exceptions import InvalidTokenError, PyJWKClientError
+from jwt.exceptions import (
+    InvalidTokenError,
+    PyJWKClientConnectionError,
+    PyJWKClientError,
+)
 
 
 @dataclass(frozen=True)
@@ -17,10 +21,14 @@ class AuthenticationError(Exception):
     pass
 
 
+class AuthenticationUnavailableError(Exception):
+    pass
+
+
 @lru_cache(maxsize=4)
 def _get_jwks_client(jwks_url):
     """Reuse JWKS clients so their public-key cache survives across requests."""
-    return PyJWKClient(jwks_url)
+    return PyJWKClient(jwks_url, timeout=5)
 
 
 def get_current_user_from_headers(headers):
@@ -59,6 +67,8 @@ def _get_current_user_from_authorization_header(authorization):
             audience=settings.SUPABASE_JWT_AUDIENCE,
             issuer=settings.SUPABASE_JWT_ISSUER,
         )
+    except PyJWKClientConnectionError as exc:
+        raise AuthenticationUnavailableError("Supabase keys unavailable") from exc
     except (InvalidTokenError, PyJWKClientError) as exc:
         raise AuthenticationError("Invalid bearer token") from exc
 

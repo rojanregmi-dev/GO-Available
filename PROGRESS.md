@@ -248,3 +248,42 @@ Harden Account Service Supabase auth
 ```
 
 Only commit after the auth changes and checks are complete.
+
+## 2026-10-26 - Supabase Connection Verification
+
+### Added Or Changed
+
+- Consolidated the Account Service's Supabase configuration into one
+  `SUPABASE_URL`; the JWT issuer and JWKS URL are derived from it.
+- Added a five-second JWKS fetch timeout and a retryable `503` response when
+  signing keys cannot be reached. Invalid JWTs remain `401` responses.
+- Updated Account CI, API docs, runtime guidance, and production-readiness notes.
+- The local, ignored Account `.env` points at the real Supabase project; no
+  Supabase secret key is needed by this JWT verifier.
+
+### Observed Checks
+
+- Before this change, a real Supabase access token reached the local Account
+  endpoint and returned `404 Account not found`: JWT verification worked, but
+  this test identity has no GO account record.
+- With this change, the derived JWKS endpoint returned HTTP 200 and the issuer
+  matched the configured project URL.
+- Account tests: 41 passed. Black, Django system check, migration drift check,
+  OpenAPI schema validation, Gunicorn config check, and `git diff --check` passed.
+- Simulated production `check --deploy` reported one HSTS warning. Hosted HTTPS
+  and proxy settings still need verification before deciding whether to enable
+  HSTS. No hosted smoke test or load test was performed.
+
+### Understanding And Next Step
+
+- Understanding demonstrated: the existing user could sign in to Supabase and
+  obtain a real JWT; the local API accepted it. The user has not yet explained
+  the full request flow back, so that understanding is not marked complete.
+- Confusing point to revisit: a Supabase publishable key starts client login;
+  the Account Service verifies the resulting JWT using public JWKS keys, not
+  the publishable or secret API key.
+- Commit: not committed. Current branch: `backend/account-supabase-jwks-resilience`.
+- Exact next step: review this diff, explain the login-to-Account request flow,
+  then commit and open a PR. After merge, configure a real host, rotate the
+  exposed Supabase secret key and weak test password, and run hosted smoke and
+  load checks before claiming production readiness.

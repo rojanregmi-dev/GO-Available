@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 import dj_database_url
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
@@ -180,18 +181,31 @@ SPECTACULAR_SETTINGS = {
     },
 }
 
-SUPABASE_JWKS_URL = os.getenv("SUPABASE_JWKS_URL", "")
+SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
+if SUPABASE_URL:
+    parsed_supabase_url = urlsplit(SUPABASE_URL)
+    if (
+        not parsed_supabase_url.hostname
+        or parsed_supabase_url.path
+        or parsed_supabase_url.query
+        or parsed_supabase_url.fragment
+        or parsed_supabase_url.username
+        or parsed_supabase_url.password
+        or parsed_supabase_url.scheme not in ({"http", "https"} if DEBUG else {"https"})
+    ):
+        raise ImproperlyConfigured("SUPABASE_URL must be a project origin URL.")
+SUPABASE_JWKS_URL = (
+    f"{SUPABASE_URL}/auth/v1/.well-known/jwks.json" if SUPABASE_URL else ""
+)
 SUPABASE_JWT_AUDIENCE = os.getenv("SUPABASE_JWT_AUDIENCE", "authenticated")
-SUPABASE_JWT_ISSUER = os.getenv("SUPABASE_JWT_ISSUER", "")
+SUPABASE_JWT_ISSUER = f"{SUPABASE_URL}/auth/v1" if SUPABASE_URL else ""
 ALLOW_DEV_AUTH_HEADER = env_bool("ALLOW_DEV_AUTH_HEADER", False)
 ENABLE_API_DOCS = env_bool("ENABLE_API_DOCS", DEBUG)
 
 if ALLOW_DEV_AUTH_HEADER and not DEBUG:
     raise ImproperlyConfigured("ALLOW_DEV_AUTH_HEADER requires DJANGO_DEBUG=true.")
-if not DEBUG and not SUPABASE_JWKS_URL:
-    raise ImproperlyConfigured("SUPABASE_JWKS_URL is required in production.")
-if not DEBUG and not SUPABASE_JWT_ISSUER:
-    raise ImproperlyConfigured("SUPABASE_JWT_ISSUER is required in production.")
+if not DEBUG and not SUPABASE_URL:
+    raise ImproperlyConfigured("SUPABASE_URL is required in production.")
 
 # Production security defaults. Local development can keep HTTPS redirect off,
 # while hosted environments can enable these with environment variables.
