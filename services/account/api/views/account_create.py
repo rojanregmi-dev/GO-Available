@@ -28,6 +28,7 @@ from api.services.account_creation import (
         201: AccountSerializer,
         400: OpenApiResponse(description="Invalid account input."),
         401: OpenApiResponse(description="Authentication required."),
+        503: OpenApiResponse(description="Authentication or database unavailable."),
         409: OpenApiResponse(description="Username is already taken."),
         429: OpenApiResponse(description="Too many account creation requests."),
     },

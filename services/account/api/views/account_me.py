@@ -22,6 +22,7 @@ from api.services.account_update import (
         200: AccountSerializer,
         401: OpenApiResponse(description="Authentication required."),
         404: OpenApiResponse(description="Account not found."),
+        503: OpenApiResponse(description="Authentication or database unavailable."),
     },
 )
 @extend_schema(
@@ -41,6 +42,7 @@ from api.services.account_update import (
         404: OpenApiResponse(description="Account not found."),
         409: OpenApiResponse(description="Username is already taken."),
         429: OpenApiResponse(description="Too many account update requests."),
+        503: OpenApiResponse(description="Authentication or database unavailable."),
     },
 )
 @api_view(["GET", "PATCH"])

@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from django.db import OperationalError
 from django.test import TestCase, override_settings
+from jwt.exceptions import PyJWKClientConnectionError
 from rest_framework.test import APIClient
 
 from api.models import Account
@@ -48,6 +49,31 @@ class AccountMeEndpointTests(SupabaseAuthTestMixin, TestCase):
         response = client.get("/api/v1/account/me")
 
         self.assertEqual(response.status_code, 401)
+
+    @patch("api.auth._get_jwks_client")
+    @patch("api.exception_handlers.logger.exception")
+    def test_me_returns_retryable_response_when_jwks_is_unavailable(
+        self, logger_mock, jwks_client_mock
+    ):
+        jwks_client_mock.return_value.get_signing_key_from_jwt.side_effect = (
+            PyJWKClientConnectionError("JWKS unavailable")
+        )
+
+        response = APIClient().get(
+            "/api/v1/account/me",
+            HTTP_AUTHORIZATION=authorization_header_for(uuid.uuid4()),
+        )
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response["Retry-After"], "5")
+        self.assertEqual(
+            response.json(),
+            {
+                "detail": "Authentication is temporarily unavailable.",
+                "code": "authentication_unavailable",
+            },
+        )
+        logger_mock.assert_called_once()
 
     def test_me_returns_not_found_when_account_does_not_exist(self):
         client = APIClient()

@@ -15,7 +15,9 @@ Current status:
 Not production-complete yet
 ```
 
-The Account Service has a strong production foundation, but it still needs final auth hardening, deployment environment proof, monitoring decisions, and real load-test numbers before we call it done.
+The Account Service has a strong production foundation. A real Supabase token was
+accepted by the local API, but hosted environment proof, monitoring decisions,
+and real load-test numbers are still required before we call it done.
 
 ## Production Definition
 
@@ -112,7 +114,6 @@ Current behavior:
 
 Remaining proof:
 
-- final auth-hardening tests before mobile integration
 - hosted smoke test after deployment
 
 ### Authentication
@@ -126,9 +127,13 @@ Implemented; hosted proof remains
 Current foundation:
 
 - Bearer JWT parsing exists.
-- Supabase JWKS URL, audience, and issuer settings exist.
+- `SUPABASE_URL` supplies the JWKS URL and issuer; the audience is configured separately.
 - Dev auth header is disabled by default.
 - CI sets `ALLOW_DEV_AUTH_HEADER=false`.
+- JWKS network failures return a retryable `503`; invalid tokens return `401`.
+- A real Supabase access token reached the local Account API and returned
+  `404 Account not found`, proving authentication succeeded without creating
+  an Account record.
 
 Production requirement:
 
@@ -152,6 +157,7 @@ The local authentication contract is covered by tests:
 - valid token is accepted
 - dev header works only when explicitly enabled
 - dev header is rejected when disabled
+- JWKS outage is reported as a retryable service error
 
 Remaining proof:
 
@@ -291,9 +297,8 @@ DJANGO_DEBUG=false
 DJANGO_ALLOWED_HOSTS
 DJANGO_CSRF_TRUSTED_ORIGINS
 DATABASE_URL
-SUPABASE_JWKS_URL
+SUPABASE_URL
 SUPABASE_JWT_AUDIENCE
-SUPABASE_JWT_ISSUER
 ALLOW_DEV_AUTH_HEADER=false
 ENABLE_API_DOCS=false
 ACCOUNT_CREATE_THROTTLE_RATE
@@ -311,7 +316,10 @@ DJANGO_CSRF_COOKIE_SECURE
 DJANGO_TRUST_PROXY_SSL_HEADER
 ```
 
-Deployment is ready to attempt only after auth hardening is merged.
+Deployment can be attempted after this auth-resilience change is reviewed and
+merged. Before exposure, configure HTTPS/proxy behavior on the chosen host and
+run `manage.py check --deploy` with that host's real environment. HSTS is a
+host-specific decision and is not enabled by this change.
 
 ### Load Testing
 
@@ -362,7 +370,7 @@ Claiming large-scale readiness without measurements.
 Account backend can be called foundation-complete when all of these are true:
 
 - production-runtime PR is merged
-- Supabase auth-hardening PR is merged
+- Supabase JWKS resilience change is reviewed and merged
 - dev auth fallback cannot be used accidentally in production
 - Account tests pass
 - migration check passes
@@ -380,15 +388,14 @@ Account backend can be called foundation-complete when all of these are true:
 Current production slice:
 
 ```text
-Verify the Account Service hostable runtime
+Review and merge Supabase JWKS resilience; then verify a hosted Account runtime
 ```
 
 Primary files:
 
 ```text
-services/account/api/views/health.py
-services/account/api/tests/test_health.py
-services/account/Dockerfile
+services/account/api/auth.py
+services/account/config/settings.py
 docs/ACCOUNT_SERVICE_RUNTIME.md
 ```
 

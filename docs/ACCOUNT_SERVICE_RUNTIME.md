@@ -67,10 +67,14 @@ DJANGO_SECRET_KEY
 DJANGO_DEBUG=false
 DJANGO_ALLOWED_HOSTS
 DATABASE_URL
-SUPABASE_JWKS_URL
+SUPABASE_URL
 SUPABASE_JWT_AUDIENCE
-SUPABASE_JWT_ISSUER
 ```
+
+Set `SUPABASE_URL` to the project's origin, for example
+`https://<project-ref>.supabase.co`. Django derives the JWT issuer and JWKS
+endpoint from this single value. Production requires HTTPS. The Account Service
+does not need a Supabase secret or service-role API key to verify user JWTs.
 
 ## Container Runtime
 
@@ -97,6 +101,11 @@ The health endpoints have different jobs:
 A hosting platform should send traffic to the Account Service only after the readiness endpoint reports `200`.
 
 If PostgreSQL becomes temporarily unavailable during an authenticated Account request, the API returns `503` with a `Retry-After: 5` header and logs the failure. Clients should retry that response rather than treating it as a permanent account error.
+
+If the Supabase JWKS endpoint is unreachable when a signing key must be fetched,
+the API also returns `503` with `Retry-After: 5`. A malformed or invalid JWT
+still returns `401`. The JWKS set is cached by the verifier for five minutes,
+and its outbound request times out after five seconds.
 
 ## CI Runtime Check
 
