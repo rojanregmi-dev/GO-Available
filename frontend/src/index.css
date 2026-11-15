@@ -1,0 +1,338 @@
+:root {
+  color-scheme: light;
+  font-family: "DM Sans", system-ui, sans-serif;
+  color: #142820;
+  background: #eef3ed;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  background: radial-gradient(ellipse at top left, #dbe9dd, #f6f7f2 72%);
+}
+
+#root {
+  width: min(100%, 70rem);
+}
+
+.app-shell-signin {
+  display: grid;
+  grid-template-columns: minmax(0, 1.13fr) minmax(0, 1fr);
+  min-height: 41rem;
+  border: 1px solid #d9e5da;
+  border-radius: 2rem;
+  overflow: hidden;
+  background: #fdfefb;
+  box-shadow: 0 28px 80px #244c3226;
+}
+
+.signin-brand {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-content: space-between;
+  gap: 3rem;
+  overflow: hidden;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background: #14382b;
+  color: #f9fff9;
+}
+
+.signin-hero,
+.signin-brand::after {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.signin-hero {
+  z-index: -2;
+  object-fit: cover;
+  object-position: center 36%;
+  animation: signin-photo-arrive 4s ease-out both;
+}
+
+.signin-brand::after {
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    #102b22ad 0%,
+    #102b2200 29%,
+    #102b2200 40%,
+    #102b22ed 94%,
+    #102b22 100%
+  );
+  content: "";
+}
+
+.signin-brand h1 {
+  margin: 0;
+  width: fit-content;
+  font-size: clamp(1.05rem, 2vw, 1.4rem);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.signin-brand h1 span {
+  color: #cbf490;
+}
+
+.signin-intro {
+  animation: signin-content-arrive 0.65s ease-out both;
+}
+
+.signin-intro p {
+  margin: 0;
+  line-height: 1.55;
+  color: #e3ede3;
+}
+
+.signin-intro .signin-tagline {
+  margin-bottom: 1rem;
+  font-size: clamp(2.25rem, 4.9vw, 4.125rem);
+  font-weight: 750;
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+  color: #f9fff9;
+}
+
+.signin-card {
+  display: grid;
+  align-content: center;
+  gap: 1.1rem;
+  padding: clamp(1.5rem, 5vw, 4.25rem);
+  overflow-wrap: anywhere;
+  animation: signin-content-arrive 0.55s ease-out both;
+}
+
+.signin-card h2 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(2rem, 3.4vw, 2.75rem);
+  letter-spacing: -0.045em;
+}
+
+.signin-card p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.signin-detail {
+  color: #45615b;
+}
+
+.signin-card button {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.65rem;
+  font: inherit;
+  font-weight: 700;
+  color: #ffffff;
+  background: #115544;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.signin-card button:hover:not(:disabled) {
+  background: #0c4033;
+}
+
+.signin-card button:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.signin-card button:focus-visible {
+  outline: 2px solid #115544;
+  outline-offset: 3px;
+}
+
+.signin-card button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.signin-mode {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 0.8rem;
+  background: #edf5f2;
+}
+
+.signin-mode::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0.25rem auto 0.25rem 0.25rem;
+  width: calc(50% - 0.375rem);
+  border-radius: 0.65rem;
+  background: #ffffff;
+  box-shadow: 0 1px 4px #103a3120;
+  transition: transform 230ms ease;
+  content: "";
+}
+
+.signin-mode:has(button:last-child[aria-pressed="true"])::before {
+  transform: translateX(calc(100% + 0.25rem));
+}
+
+.signin-mode button {
+  min-height: 2.5rem;
+  padding: 0.5rem;
+  color: #45615b;
+  background: transparent;
+}
+
+.signin-mode button:hover:not(:disabled) {
+  color: #103a31;
+  background: #e0eee9;
+}
+
+.signin-mode button[aria-pressed="true"] {
+  color: #103a31;
+  background: transparent;
+}
+
+.signin-card .signin-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding-inline: 0.75rem;
+  border-color: #747775;
+  color: #1f1f1f;
+  background: #ffffff;
+  font-family: "Google Sans", system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.signin-card .signin-google:hover:not(:disabled) {
+  background: #f5f8f7;
+}
+
+.signin-google img {
+  flex: none;
+  object-fit: contain;
+}
+
+.signin-card .signin-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #45615b;
+  font-size: 0.875rem;
+}
+
+.signin-divider::before,
+.signin-divider::after {
+  flex: 1;
+  height: 1px;
+  background: #d3e6df;
+  content: "";
+}
+
+.signin-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.signin-form label {
+  display: grid;
+  gap: 0.4rem;
+  color: #203d36;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.signin-form label[for="account-name"] {
+  animation: signin-content-arrive 220ms ease-out both;
+}
+
+.signin-form input {
+  min-width: 0;
+  min-height: 3rem;
+  padding-inline: 0.75rem;
+  border: 1px solid #a6bdb4;
+  border-radius: 0.65rem;
+  background: #ffffff;
+  color: #0f1f2e;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.signin-form input:focus-visible {
+  outline: 2px solid #115544;
+  outline-offset: 2px;
+}
+
+.signin-card [role="alert"] {
+  color: #9b2424;
+  font-size: 0.9rem;
+}
+
+@keyframes signin-photo-arrive {
+  from { transform: scale(1.07); }
+  to { transform: scale(1); }
+}
+
+@keyframes signin-content-arrive {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 740px) {
+  .app-shell-signin {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
+  }
+
+  .signin-brand {
+    min-height: clamp(19rem, 84vw, 30rem);
+    gap: 4rem;
+  }
+
+  .signin-hero {
+    object-position: center 26%;
+  }
+
+  .signin-brand::after {
+    background: linear-gradient(180deg, #102b22a8, #102b2200 38%, #102b22ed 92%, #102b22);
+  }
+
+  .signin-intro .signin-tagline {
+    margin-bottom: 0.5rem;
+  }
+
+  .signin-card {
+    padding-block: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signin-hero,
+  .signin-intro,
+  .signin-card,
+  .signin-form label[for="account-name"] {
+    animation: none;
+  }
+
+  .signin-mode::before,
+  .signin-card button {
+    transition: none;
+  }
+}
